@@ -1,6 +1,6 @@
 
 # =============================================================================
-# Script: summarize_ics209_structures_by_ecoregion.R
+# Script: 10_summarize_ics209_structures_by_ecoregion.R
 # Description:
 #   Processes ICS-209 wildfire incident records to assign events to Level III
 #   and Level IV ecoregions using ignition-point locations, cleans and filters
