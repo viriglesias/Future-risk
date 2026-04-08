@@ -1,66 +1,30 @@
 # =============================================================================
 # Script: summarize_mtbs_by_ecoregion.R
-#
-# Purpose:
-#   Summarize MTBS wildfire burned area by Level IV and Level III ecoregions.
-#   The script assigns MTBS fire events to ecoregions using ignition-point
-#   locations, aggregates annual burned area by ecoregion, and calculates the
-#   proportion of each ecoregion burned per year.
-#
-# Inputs required:
-#   1. Data/Raw/us_eco_l4_state_boundaries
-#      - Vector layer of U.S. Level IV ecoregion boundaries.
-#      - Also contains Level III identifiers used for aggregation.
-#
-#   2. Data/Raw/mtbs_perimeter_data 2
-#      - MTBS fire perimeter dataset.
-#      - Used to obtain Event_ID, ignition year, and burned area.
-#
-#   3. Data/Raw/mtbs_fod_pts_data
-#      - MTBS point dataset (event ignition points).
-#      - Used to assign events to ecoregions via spatial join.
-#
-# Outputs produced:
-#   1. Data/Processed/mtbs_eco.csv
-#      - Event-level MTBS wildfire table with ecoregion identifiers.
-#
-#   2. Data/Processed/mtbs_l4.csv
-#      - Annual burned area and proportion burned by Level IV ecoregion.
-#
-#   3. Data/Processed/mtbs_l3.csv
-#      - Annual burned area and proportion burned by Level III ecoregion.
-#
-# Notes:
-#   - Burned area is stored in hectares.
-#   - Only events classified as Wildfire or Unkown are retained, matching the
-#     original code.
-#   - Missing years within each ecoregion are filled with zeros for 1984–2024.
+# Description:
+#   Summarizes MTBS wildfire burned area within Level IV and Level III
+#   ecoregions across the conterminous United States. Fire events are assigned
+#   to ecoregions using ignition-point locations, annual burned area is
+#   aggregated by ecoregion, and the proportion of each ecoregion burned per
+#   year is calculated for 1984–2024.
+# Inputs:
+#   Data/Raw/us_eco_l4_state_boundaries;
+#   Data/Raw/mtbs_perimeter_data 2;
+#   Data/Raw/mtbs_fod_pts_data
+# Outputs:
+#   Data/Processed/mtbs_eco.csv;
+#   Data/Processed/mtbs_l4.csv;
+#   Data/Processed/mtbs_l3.csv
 # =============================================================================
 
-
 # Load required packages ---------------------------------------------------
-
-# tidyverse: data manipulation
-# sf: vector data handling
 pacman::p_load(tidyverse, sf)
 
 
 # Read ecoregion boundaries ------------------------------------------------
-
-# Input:
-#   Data/Raw/us_eco_l4_state_boundaries
-# Purpose:
-#   Load ecoregion polygons used for spatial joins and area calculations.
 eco_l4 <- st_read('Data/Raw/us_eco_l4_state_boundaries')
 
 
-# Read MTBS fire perimeter data -------------------------------------------
-
-# Input:
-#   Data/Raw/mtbs_perimeter_data 2
-# Purpose:
-#   Load MTBS fire perimeters, transform to the ecoregion CRS, calculate
-#   burned area in hectares, and retain wildfire events.
+# Read MTBS fire perimeter data ------------------------------------------
 mtbs_sf <- st_read('Data/Raw/mtbs_perimeter_data 2') %>% 
   st_transform(st_crs(eco_l4))
 
@@ -83,12 +47,6 @@ mtbs <- mtbs_sf %>%
 
 
 # Read MTBS ignition-point data -------------------------------------------
-
-# Input:
-#   Data/Raw/mtbs_fod_pts_data
-# Purpose:
-#   Load MTBS point data and use ignition-point locations to assign each event
-#   to an ecoregion.
 mtbs_pt <- st_read('Data/Raw/mtbs_fod_pts_data') %>% 
   st_transform(st_crs(eco_l4)) %>% 
   filter(Incid_Type %in% c('Wildfire', 'Unkown')) %>% 
@@ -103,10 +61,6 @@ mtbs_eco <- mtbs_eco %>%
 
 
 # Combine perimeter attributes with ecoregion assignment -------------------
-
-# Purpose:
-#   Join event-level burned area and year from the perimeter data to the
-#   ecoregion assignment derived from the ignition points.
 mtbs <- right_join(mtbs, mtbs_eco)
 mtbs <- st_drop_geometry(mtbs)
 
@@ -128,9 +82,6 @@ mtbs <- read.csv("Data/Processed/mtbs_eco.csv")
 
 # Calculate ecoregion areas ------------------------------------------------
 
-# Purpose:
-#   Compute total area of each Level IV and Level III ecoregion in hectares
-#   to allow calculation of annual proportion burned.
 eco <- st_drop_geometry(eco_l4)
 
 eco <- eco %>% 
@@ -223,8 +174,3 @@ test2 <- mtbs_l3 %>%
 # Write Level III output
 write.csv(mtbs_l3, "Data/Processed/mtbs_l3.csv", row.names = FALSE)
 # Output units: hectares for area_burned_l3
-
-
-# Optional diagnostic check ------------------------------------------------
-# filter(mtbs_l4, year %in% 2000) %>% 
-#   summarise(sum(area_burned_l4))
