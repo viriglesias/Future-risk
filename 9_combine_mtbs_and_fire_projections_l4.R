@@ -1,73 +1,28 @@
 # =============================================================================
-# Script: combine_mtbs_and_fire_projections_l4.R
-#
-# Purpose:
-#   Combine historical MTBS burned-area data with modeled fire projections at
-#   the Level IV ecoregion scale for each climate model (CNRM, MRI,
-#   HadGEM2-ES). The script standardizes column names, fills missing MTBS years,
-#   attaches the historical maximum burned area by ecoregion, and writes one
-#   combined file per climate model for use in later plotting and analysis.
-#
-# Inputs required:
-#   1. Data/Processed/mtbs_l4.csv
-#      - Historical annual burned area by Level IV ecoregion.
-#      - Expected columns before renaming:
-#          US_L4CODE
-#          year
-#          area_burned_l4
-#          area_eco_l4
-#          prop_area_burned_eco_l4
-#
-#   2. Data/Processed/Fire_projections/Fire_projections_CNRM_l4.csv
-#      - Projected annual burned area by Level IV ecoregion for CNRM.
-#
-#   3. Data/Processed/Fire_projections/Fire_projections_MRI_l4.csv
-#      - Projected annual burned area by Level IV ecoregion for MRI.
-#
-#   4. Data/Processed/Fire_projections/Fire_projections_HadGEM2-ES_l4.csv
-#      - Projected annual burned area by Level IV ecoregion for HadGEM2-ES.
-#
-# Outputs produced:
-#   1. Data/Processed/Fire_projections/Fire_combo_CNRM_l4.csv
-#   2. Data/Processed/Fire_projections/Fire_combo_MRI_l4.csv
-#   3. Data/Processed/Fire_projections/Fire_combo_HadGEM2-ES_l4.csv
-#
-# Output contents:
-#   Each combined file contains both historical MTBS rows and projected rows,
-#   with:
-#     - US_L4CODE
-#     - Year
-#     - area_burned
-#     - area_eco_l4
-#     - prop_area_burned_l4
-#     - type
-#     - mx               (maximum historical MTBS burned area by ecoregion)
-#     - area_burned_mod  (area_burned with missing values replaced by zero)
-#
-# Notes:
-#   - MTBS years are restricted to 1985–2023.
-#   - Missing MTBS ecoregion-years are filled with explicit rows using
-#     tidyr::complete().
-#   - The historical maximum burned area (mx) is computed from MTBS only and
-#     joined to each combined dataset.
+# Script: 9_combine_mtbs_and_fire_projections_l4.R
+# Description:
+#   Combines historical MTBS burned-area data with projected burned-area
+#   estimates from multiple climate models (CNRM, MRI, HadGEM2-ES) at the
+#   Level IV ecoregion scale. Historical and projected datasets are merged,
+#   missing MTBS years are filled, and the maximum historical burned area per
+#   ecoregion is attached for reference. The resulting combined datasets are
+#   written for each climate model for downstream analysis and visualization.
+# Inputs:
+#   Data/Processed/mtbs_l4.csv;
+#   Data/Processed/Fire_projections/Fire_projections_CNRM_l4.csv;
+#   Data/Processed/Fire_projections/Fire_projections_MRI_l4.csv;
+#   Data/Processed/Fire_projections/Fire_projections_HadGEM2-ES_l4.csv
+# Outputs:
+#   Data/Processed/Fire_projections/Fire_combo_CNRM_l4.csv;
+#   Data/Processed/Fire_projections/Fire_combo_MRI_l4.csv;
+#   Data/Processed/Fire_projections/Fire_combo_HadGEM2-ES_l4.csv
 # =============================================================================
 
-
 # Load required packages ---------------------------------------------------
-
-# tidyverse: data manipulation and completion of missing years
-# sf: loaded but not directly used in this script
-# foreach: loaded but not directly used in this script
 pacman::p_load(tidyverse, sf, foreach)
 
 
 # Read and prepare historical MTBS data -----------------------------------
-
-# Input:
-#   Data/Processed/mtbs_l4.csv
-# Purpose:
-#   Load annual historical burned area by Level IV ecoregion and standardize
-#   column names for later combination with modeled fire projections.
 mtbs <- read.csv("Data/Processed/mtbs_l4.csv")
 
 # Standardize column names
@@ -90,9 +45,6 @@ mtbs <- mtbs %>%
 
 # Compute historical maximum burned area by ecoregion ---------------------
 
-# Purpose:
-#   Calculate the maximum historical MTBS burned area in each Level IV
-#   ecoregion. This is later joined to each model-combined table.
 mtbs_sum <- mtbs %>% 
   group_by(US_L4CODE) %>% 
   summarise(mx = max(area_burned))
@@ -100,7 +52,6 @@ mtbs_sum <- mtbs %>%
 
 # -------------------------------------------------------------------------
 # Climate model: CNRM
-# -------------------------------------------------------------------------
 
 # Read projected burned area for CNRM
 cnrm <- read.csv('Data/Processed/Fire_projections/Fire_projections_CNRM_l4.csv')
@@ -129,7 +80,6 @@ write.csv(
 
 # -------------------------------------------------------------------------
 # Climate model: MRI
-# -------------------------------------------------------------------------
 
 # Read projected burned area for MRI
 mri <- read.csv('Data/Processed/Fire_projections/Fire_projections_MRI_l4.csv')
@@ -159,7 +109,7 @@ write.csv(
 
 # -------------------------------------------------------------------------
 # Climate model: HadGEM2-ES
-# -------------------------------------------------------------------------
+
 
 # Read projected burned area for HadGEM2-ES
 HadGEM2 <- read.csv('Data/Processed/Fire_projections/Fire_projections_HadGEM2-ES_l4.csv')
