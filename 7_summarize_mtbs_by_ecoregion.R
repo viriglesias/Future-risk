@@ -1,5 +1,5 @@
 # =============================================================================
-# Script: summarize_mtbs_by_ecoregion.R
+# Script: 7_summarize_mtbs_by_ecoregion.R
 # Description:
 #   Summarizes MTBS wildfire burned area within Level IV and Level III
 #   ecoregions across the conterminous United States. Fire events are assigned
