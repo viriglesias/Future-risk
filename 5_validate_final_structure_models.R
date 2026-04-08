@@ -1,5 +1,5 @@
 # =============================================================================
-# Script: validate_final_structure_models.R
+# Script: 5_validate_final_structure_models.R
 # Description:
 #   Evaluates the final selected structure projection models by calculating
 #   adjusted deviance-explained metrics for both training and validation data
