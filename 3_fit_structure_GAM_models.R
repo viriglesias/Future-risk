@@ -1,48 +1,17 @@
 # =============================================================================
-# Script: fit_structure_GAM_models.R
-#
-# Purpose:
-#   Fit generalized additive models (GAMs) to time series of structure counts
-#   on private land within each Level IV ecoregion. The models estimate
-#   historical trends and generate projections through 2060.
-#
-#   Two alternative models are fit for each ecoregion:
-#       1. Negative binomial GAM
-#       2. Poisson GAM
-#
-#   The script also evaluates model performance using held-out validation years
-#   and saves predictions and model summaries to disk.
-#
-# Inputs required:
-#   1. Data/Processed/structures_ts/
-#      - Directory containing one CSV file per Level IV ecoregion produced by
-#        the previous processing step.
-#      - Each file contains annual structure counts by ownership class.
-#
-#   2. CSV format expected in structures_ts:
-#         year
-#         structures
-#         dlu        (land ownership class)
-#         eco_l4_id
-#         eco_l1
-#
-# Outputs produced:
-#   Data/Processed/structures/Model/predictions/
-#      - predicted structure counts (1900–2060) for each ecoregion
-#
-#   Data/Processed/structures/Model/summaries/
-#      - model fit statistics and validation metrics
-#
-# Modeling approach:
-#   structures ~ s(year, bs = "cr", k = 12)
-#
-#   where:
-#     s(year) = cubic regression spline
-#     k = 12 spline basis dimension
-#
-#   Model families compared:
-#     Poisson
-#     Negative binomial
+# Script: 3_fit_structure_GAM_models.R
+# Description:
+#   Fits generalized additive models (GAMs) to time series of structure counts
+#   on private land within Level IV ecoregions of the conterminous United
+#   States. Two model families (Poisson and negative binomial) are evaluated
+#   using held-out validation years, and predictions are generated through
+#   2060. The workflow outputs model predictions and performance summaries
+#   for each ecoregion time series.
+# Inputs:
+#   Data/Processed/structures_ts/*.csv
+# Outputs:
+#   Data/Processed/structures/Model/predictions/*.csv;
+#   Data/Processed/structures/Model/summaries/*.csv
 # =============================================================================
 
 
