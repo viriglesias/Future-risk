@@ -1,5 +1,5 @@
 # =============================================================================
-# Script: summarize_fire_projections_by_ecoregion.R
+# Script: 8_summarize_fire_projections_by_ecoregion.R
 # Description:
 #   Summarizes projected annual burned area within Level IV ecoregions for a
 #   selected climate model by reading processed fire projections or extracting
