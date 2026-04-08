@@ -1,9 +1,12 @@
 pacman::p_load(tidyverse, sf)
-ics <- read.csv('/Users/viig7608/Desktop/Fire risk/Data/Raw/ics209-plus-wf_incidents_1999to2023.csv')[,-1]
-ics <- ics %>% 
+
+if(!file.exists("/Users/viig7608/Desktop/Fire risk/Data/Processed/ics_l3-_l4_full.csv")){
+# ics <- read.csv('/Users/viig7608/Desktop/Fire risk/Data/Raw/ics209-plus-wf_incidents_1999to2023.csv')[,-1]
+ics <- read.csv('/Users/viig7608/Desktop/Fire risk/Data/Raw/ics209plus_conusak_spatial_1999to2023.csv')
   # Remove some known "problem fires"
-  filter(INCIDENT_ID != "2017_7211255_REDWOOD VALLEY INCIDENT",
-         INCIDENT_ID != "2017_7293073_REDWOOD VALLEY INCIDENT") %>%
+ics <- ics %>%  
+   filter(INCIDENT_ID != "2017_7211255_REDWOOD VALLEY INCIDENT",
+          INCIDENT_ID != "2017_7293073_REDWOOD VALLEY INCIDENT") %>%
   # Filter incidents with 0 acres
   filter(FINAL_ACRES!=0) %>% 
   filter( START_YEAR > '1999')
@@ -13,7 +16,7 @@ ics <- ics %>%
   filter(!is.na(POO_LATITUDE) & !is.na(POO_LONGITUDE))
 ics <- filter(ics, STR_DESTROYED_TOTAL>0 |STR_DAMAGED_TOTAL>0)
 ics_sf <- st_as_sf(ics, coords = c("POO_LONGITUDE", "POO_LATITUDE"), crs = 4326)  # Set CRS to WGS 84
-eco_l4 <-st_read('Data/Raw/us_eco_l4_state_boundaries')
+eco_l4 <-st_read('/Users/viig7608/Desktop/Fire risk/Data/Raw/us_eco_l4_state_boundaries')
 ics_sf <- st_transform(ics_sf, crs = st_crs(eco_l4))
 ics_eco <- st_join(ics_sf, eco_l4, join = st_within)
 ics_eco_df <- st_drop_geometry(ics_eco)
@@ -102,23 +105,13 @@ ics_eco_df$US_L4CODE[ics_eco_df$INCIDENT_NAME %in% 'CARLOS EDGE'] <- '51h'
 ics_eco_df$US_L4NAME[ics_eco_df$US_L4CODE ==  '65d']
 ics_eco_df$US_L3CODE[ics_eco_df$INCIDENT_NAME %in% 'Attala'] <- 65
 ics_eco_df$US_L4CODE[ics_eco_df$INCIDENT_NAME %in% 'Attala'] <- '65d'
-write.csv(ics_eco_df, "Data/Processed/ics_l3-_l4_full.csv", row.names = F)
+ics_eco_df <- ics_eco_df %>% 
+  filter(!is.na(US_L4CODE))
 
 compl_T <- filter(ics_eco_df, COMPLEX %in% 'True') %>%
   filter(!is.na(INCIDENT_NAME))
 compl_F <- filter(ics_eco_df, !(COMPLEX %in% 'True')) %>%
   filter(!is.na(INCIDENT_NAME))
-# combo <- left_join(compl_T[,c(1:3, 5, 9, 22, 26, 29, 34, 50, 60, 24)], compl_F[,c(1:3, 5, 9, 22, 26, 29, 34, 50, 60, 24)], by = c('START_YEAR', 'US_L4CODE'))
-# combo <- filter(combo, !is.na(STR_DESTROYED_TOTAL.y) & !is.na(STR_DAMAGED_TOTAL.y))
-# combo <- filter(combo, STR_DESTROYED_TOTAL.y>0 | STR_DAMAGED_TOTAL.y>0)
-# combo <- combo %>% 
-#   filter(FINAL_ACRES.x>FINAL_ACRES.y)
-# combo <- combo %>% 
-#   filter(STR_DESTROYED_TOTAL.x>=STR_DESTROYED_TOTAL.y)
-# combo <- combo %>% 
-#   filter(STR_DAMAGED_TOTAL.x>=STR_DAMAGED_TOTAL.y)
-# combo <- combo %>% 
-#   filter(as.Date(WF_CESSATION_DATE.y)<=as.Date(WF_CESSATION_DATE.x))
 
 compl_F$Match <- sapply(compl_F$INCIDENT_NAME, function(desc) {
   # Check for matches in df2$Name using str_detect
@@ -138,6 +131,12 @@ mer <- mer %>%
   filter(POO_STATE.x == POO_STATE.y)
 mer <- mer %>% 
   filter(START_YEAR.x == START_YEAR.y)#No repetition
+write.csv(ics_eco_df, "/Users/viig7608/Desktop/Fire risk/Data/Processed/ics_l3-_l4_full.csv", row.names = F)
+}else{
+  ics_eco_df <- read.csv("/Users/viig7608/Desktop/Fire risk/Data/Processed/ics_l3-_l4_full.csv")
+}
+
+
 
 #Ecol3
 test1 <- ics_eco_df %>% 
@@ -161,7 +160,7 @@ ics_eco_l3 <- ics_eco_l3 %>%
   arrange(US_L3CODE, START_YEAR) %>%  # Order data for interpolation
   mutate(damaged_dest = ifelse(is.na(damaged_dest), 0, damaged_dest)) %>%
   ungroup() 
-write.csv(ics_eco_l3, "Data/Processed/ics_l3_1.csv", row.names = F)
+write.csv(ics_eco_l3, "/Users/viig7608/Desktop/Fire risk/Data/Processed/ics_l3_1.csv", row.names = F)
 
 #Ecol4
 ics_eco_l4 <- ics_eco_df %>% 
@@ -180,6 +179,7 @@ ics_eco_l4 <- ics_eco_l4 %>%
   arrange(US_L4CODE, START_YEAR) %>%  # Order data for interpolation
   mutate(damaged_dest = ifelse(is.na(damaged_dest), 0, damaged_dest)) %>%
   ungroup() 
-write.csv(ics_eco_l4, "Data/Processed/ics_l4_1.csv", row.names = F)
+
+write.csv(ics_eco_l4, "/Users/viig7608/Desktop/Fire risk/Data/Processed/ics_l4_1.csv", row.names = F)
 
 
