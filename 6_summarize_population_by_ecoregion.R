@@ -1,5 +1,5 @@
 # =============================================================================
-# Script: summarize_population_by_ecoregion.R
+# Script: 6_summarize_population_by_ecoregion.R
 # Description:
 #   Summarizes ICLUS population totals within Level IV ecoregions of the
 #   conterminous United States by rasterizing polygon population data to a
