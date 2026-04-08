@@ -15,24 +15,13 @@
 # =============================================================================
 
 # Load required packages ---------------------------------------------------
-# tidyverse: data manipulation
-# raster: raster processing
-# sf: vector processing
-# foreach / doParallel: looping infrastructure
 pacman::p_load(tidyverse, raster, sf, foreach, doParallel)
 
 # Specify land-use type(s) to process --------------------------------------
-# Here only BUPR is processed.
 lu <- c('BUPR')
 
 # Identify input BUPR raster files -----------------------------------------
-# Input:
-#   Data/Raw/BUPR/BUPR/
-# Purpose:
-#   Recursively list annual BUPR raster files and select a subset.
-# Note:
-#   The [27:43] indexing assumes the desired files are always in those
-#   positions; this should ideally be replaced with explicit filename matching.
+
 tifs <- list.files(
   paste0('Data/Raw/BUPR/', lu),
   recursive = TRUE,
