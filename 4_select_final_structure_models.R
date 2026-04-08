@@ -1,5 +1,5 @@
 # =============================================================================
-# Script: select_final_structure_models.R
+# Script: 4_select_final_structure_models.R
 # Description:
 #   Selects a final temporal model for each Level IV ecoregion from previously
 #   fitted GAM outputs, screens and corrects extreme forecast outliers, and
